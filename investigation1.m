@@ -1,4 +1,4 @@
-% Get points on the circle.
+    % Get points on the circle.
 pts=circdata(1,11,0);
 
 % Weight matrix
@@ -21,12 +21,12 @@ for explicit=[true,false]
         % Initial value for the explicit formulation
         x0e=[c(:);r;theta(:)];
 
-        [x,code,n,X,alphas]=gaussn_niclas_damped(@circle_r,x0e,epsR, ...
+        [x,code,n,X,alphas]=gaussn_niclas_damped(@circle_r_explicit,x0e,epsR, ...
                                                  maxIter,alphaMin,{pts});
         code,n
 
         % Re-compute the residual and Jacobian at the solution.
-        [r,J]=circle_r(X(:,end),pts);
+        [r,J]=circle_r_explicit(X(:,end),pts);
 
         % Extract c, r for explicit formulation.
         ce=X(1:2,end);
@@ -56,8 +56,8 @@ for explicit=[true,false]
         % Initial value for the implicit formulation
         x0i=[c;r;pts(:)];
         
-        [x,n,code,l,X,alphas,C,L,nus]=sqpsq(@circlec_r,...
-                                            @circlec_c,x0i,epsR, ...
+        [x,n,code,l,X,alphas,C,L,nus]=sqpsq(@circle_r_implicit,...
+                                            @circle_c,x0i,epsR, ...
                                             epsC,maxIter,{pts},nu0,mu);
         
         code,n
@@ -67,8 +67,8 @@ for explicit=[true,false]
         ri=X(3,end);
 
         % Re-compute residual, constraint + jacobians at solution.
-        [r,J]=circlec_r(x,pts);
-        [c,A]=circlec_c(x,pts);
+        [r,J]=circle_r_implicit(x,pts);
+        [c,A]=circle_c(x,pts);
 
         % Compute the standard deviation of unit weight.
         sigma0i=sqrt(norm(r)^2/(size(J,1)-size(J,2)+length(c)));
@@ -123,12 +123,12 @@ for explicit=[true,false]
         r=x(3);
         if explicit
             theta=x(4:end);
-            resNorm(i)=norm(circle_r(x,pts));
+            resNorm(i)=norm(circle_r_explicit(x,pts));
             estPts(:,:,i)=circle_g(c,r,theta);
         else
-            resNorm(i)=norm(circlec_r(x,pts));
+            resNorm(i)=norm(circle_r_implicit(x,pts));
             estPts(:,:,i)=reshape(x(4:end),2,[]);
-            conVal(i)=max(abs(circlec_c(x,pts)));
+            conVal(i)=max(abs(circle_c(x,pts)));
         end
     end
     

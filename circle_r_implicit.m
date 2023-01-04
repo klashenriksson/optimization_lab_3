@@ -1,5 +1,5 @@
-function [r,J,JJ]=circle_r(x,b)
-%CIRCLE_R Circle fitting residual/jacobian function.
+function [r,J,JJ]=circle_r_implicit(x,b)
+%CIRCLE_R_IMPLICIT Circle fitting residual/jacobian function.
 %
 %   V=CIRCLE_R(X,B) computes the 2N-by-1 residual vector V between the
 %   circle points modelled by the N+3 vector X and the 2-by-N array B
@@ -25,18 +25,17 @@ function [r,J,JJ]=circle_r(x,b)
 if ischar(x), selftest, return; end
 
 % Unpack x
-c=x(1:2);
-r=x(3);
-th=x(4:end);
+Px = x(4:2:end)';
+Py = x(5:2:end)';
 
 % Verify sizes.
-if length(th)~=size(b,2), error('Wrong size'); end
+if length(Px)~=size(b,2), error('Wrong size'); end
 
 % Let circle_g compute the points. Unroll difference to column vector.
-r=reshape(circle_g(c,r,th)-b,[],1);
+r=reshape([Px;Py]-b,[],1);
 
 if nargout>2 % We want the numerical Jacobian.
-    f=@(x)circle_r(x,b);
+    f=@(x)circle_r_implicit(x,b);
     JJ=jacapprox(f,x);
 end
 
@@ -45,17 +44,10 @@ if nargout>1 % We want the analytical Jacobian.
     % Cheat. Return the numerical instead.
     k = size(b,2);
     n = size(x,1);
-    T =[cos(x(4:end)'); sin(x(4:end)')];
-    dTdtheta = [-sin(x(4:end)'); cos(x(4:end)')];
+    Ik = eye(k,k);
+    I2 = eye(2,2);
     J = zeros(2*k,n);
-    J(1:end,1:2) = repmat(eye(2,2),k,1);
-    J(1:end,3) = reshape(T,[],1);
-    row = 1;
-    for i = 4:n
-        J(row,i) = x(3)*dTdtheta(1,i-3);
-        J(row +1,i) = x(3)*dTdtheta(2,i-3);
-        row = row + 2;
-    end
+    J(1:end,4:end) = kron(Ik,I2);
 end
 
 
@@ -66,7 +58,7 @@ function selftest
 c=rand(2,1);
 r=1+rand;
 n=7;
-th=rand(n,1);
+th=rand(n*2,1);
 x=[c;r;th];
 b=rand(2,n);
 % Compute both Jacobians.
