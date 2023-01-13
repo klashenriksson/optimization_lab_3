@@ -232,7 +232,7 @@ end
     post_cov(4,3) = re + sqrt(5.99)*sxxe(3);
 
  
-    
+
 
 
 % Define some useful functions...
