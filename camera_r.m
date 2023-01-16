@@ -66,7 +66,6 @@ if nargout>1 % We want the analytical Jacobian.
 
             row_idx = q_idx;
             col_idx_1 = 10 + (i-1)*pts_per_k*12 + (j-1)*12:10 + (i-1)*12*pts_per_k + (j-1)*12+2;
-            disp("acac " + num2str(col_idx_1));
             J(row_idx, 1 + (i-1)*12:1 + (i-1)*12 + 8) = J1;
             J(row_idx, 10 + (i-1)*12:10 + (i-1)*12+2) = J2;
             J(row_idx, q_idx + 12*k) = J3;
