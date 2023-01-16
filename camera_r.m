@@ -24,30 +24,28 @@ function [r,J,JJ]=camera_r(x,b)
 % Shortcut for selftest.
 if ischar(x), selftest, return; end
 
-% Unpack x
-k = length(x)/15;
-resk = zeros(3*k,1);
-p_idx = 1;
-q = x(12*k:end);
+n = size(b,2);
+k = (length(x) - 3*n)/12;
+pts_per_k = n/k;
+q = x(12*k + 1:end);
+r = zeros(3*n, 1);
 for i = 1:k
  KK = x(1+12*(i-1):12*i);
  Rk = KK(1:9);
  dk = KK(10:12);
  Rk = [Rk(1) Rk(4) Rk(7); Rk(2) Rk(5) Rk(8); Rk(3) Rk(6) Rk(9)];
- qk = q(p_idx:p_idx+3);
- bk = b(p_idx:p_idx+3);
- resk(p_idx:p_idx+3) = Rk*qk' + dk - bk;
- p_idx = p_idx + 3;
+ for j = 1:pts_per_k
+     q_idx = 1 + (i-1)*k*pts_per_k + (j-1)*3:1 + (i-1)*k*pts_per_k + (j-1)*3+2;
+     qki = q(q_idx);
+     bki = b(:, (i-1)*k + j);
+     resk = Rk*qki + dk - bki;
+     r_idx = q_idx;
+     r(r_idx) = resk;
+ end
 end
-r = resk;
-
-% Verify sizes.
-if length(q)~=size(b,2), error('Wrong size'); end
-
-% Let circle_g compute the points. Unroll difference to column vector.
 
 if nargout>2 % We want the numerical Jacobian.
-    f=@(x)circle_r(x,b);
+    f=@(x)camera_r(x,b);
     JJ=jacapprox(f,x);
 end
 
@@ -55,18 +53,24 @@ end
 if nargout>1 % We want the analytical Jacobian.
     % Cheat. Return the numerical instead.
     J = zeros(length(r),length(x));
-    p_idx = 1;
+    J2 = eye(3,3);
     for i = 1:k
         KK = x(1+12*(i-1):12*i);
         Rk = KK(1:9);
         Rk = [Rk(1) Rk(4) Rk(7); Rk(2) Rk(5) Rk(8); Rk(3) Rk(6) Rk(9)];
-        qk = q(p_idx:p_idx + 3);
-        J1 = kron(qk',eye(3,3));
-        J2 = eye(3,3);
         J3 = Rk;
-        J((i-1)*3 +1:3*i, 12*(i-1) + 1:12*i) = [J1 J2];
-        J((i-1)*3 +1:3*i, (12*k)+ (i-1)*3:(12*k)*i*3) = J3;
-        p_idx = p_idx + 3;
+        for j = 1:pts_per_k
+            q_idx = 1 + (i-1)*k*pts_per_k + (j-1)*3:1 + (i-1)*k*pts_per_k + (j-1)*3+2;
+            qki = q(q_idx);
+            J1 = kron(qki',eye(3,3));
+
+            row_idx = q_idx;
+            col_idx_1 = 10 + (i-1)*pts_per_k*12 + (j-1)*12:10 + (i-1)*12*pts_per_k + (j-1)*12+2;
+            disp("acac " + num2str(col_idx_1));
+            J(row_idx, 1 + (i-1)*12:1 + (i-1)*12 + 8) = J1;
+            J(row_idx, 10 + (i-1)*12:10 + (i-1)*12+2) = J2;
+            J(row_idx, q_idx + 12*k) = J3;
+        end
     end
 end
 
