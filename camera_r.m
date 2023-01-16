@@ -51,7 +51,6 @@ end
 
 
 if nargout>1 % We want the analytical Jacobian.
-    % Cheat. Return the numerical instead.
     J = zeros(length(r),length(x));
     J2 = eye(3,3);
     for i = 1:k
@@ -59,6 +58,7 @@ if nargout>1 % We want the analytical Jacobian.
         Rk = KK(1:9);
         Rk = [Rk(1) Rk(4) Rk(7); Rk(2) Rk(5) Rk(8); Rk(3) Rk(6) Rk(9)];
         J3 = Rk;
+        % TODO: Prettify these indices.......
         for j = 1:pts_per_k
             q_idx = 1 + (i-1)*k*pts_per_k + (j-1)*3:1 + (i-1)*k*pts_per_k + (j-1)*3+2;
             qki = q(q_idx);
