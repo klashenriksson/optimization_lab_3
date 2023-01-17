@@ -3,7 +3,7 @@ function [g, A, AA] = camera_c(x, b)
 k = 3;
 K1 = x(1:12);
 R1 = K1(1:9);
-d1 = x(10:12);
+d1 = K1(10:12);
 
 
 % x = 12k + m
