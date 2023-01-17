@@ -1,3 +1,6 @@
+clear
+close all
+clc
 [p,~,cams] = mitpts(1); 
 k = 3;
 Rk = reshape(eye(3,3),[],1);
@@ -15,12 +18,11 @@ end
 epsR=1e-6;
 maxIter=50;
 mu=0.01;
-alphaMin=1e-3;
 epsC=1e-8;
 nu0=0.1;
 
 %[r, J, JJ] = camera_r(x,b);
-%[c, A, AA] = camera_c(x,b);
+[c, A, AA] = camera_c(x0,b);
 
 [x, n, code, lambda, X, alphas, C, L, nu, r, J, A] = sqpsq(@camera_r, @camera_c, x0, epsR, epsC, maxIter, {b}, nu0, mu);
 
