@@ -1,0 +1,44 @@
+function [g, A, AA] = camera_c(x)
+% get the first rotation matrix and camera offset
+k = 3;
+K1 = x(1:12);
+R1 = K1(1:9);
+d1 = x(10:12);
+
+
+% x = 12k + m
+
+g = zeros(12 + 6*k, 1);
+
+% start by setting R1, d1 constraints
+g(1:9) = R1 - reshape(eye(3,3), [], 1);
+g(10:12) = d1;
+
+% now orthogonality constraints
+for i = 2:k
+    idx = 13 + (i-1)*12;
+    Ri = x(idx:idx+8);
+    Rix = Ri(1:3);
+    Riy = Ri(4:6);
+    Riz = Ri(7:9);
+
+    g_idx = 13 + (i-1)*6;
+    g(g_idx) = Rix'*Rix - 1;
+    g(g_idx+1) = Riy'*Riy - 1;
+    g(g_idx+2) = Riz'*Riz - 1;
+    g(g_idx+3) = Rix'*Riy;
+    g(g_idx+4) = Rix'*Riz;
+    g(g_idx+5) = Riy'*Riz;
+end
+
+if nargout>2 % We want the numerical Jacobian.
+    f=@(x)camera_c(x,b);
+    AA=jacapprox(f,x);
+end
+
+
+if nargout>1 % We want the analytical Jacobian.
+
+end
+
+end

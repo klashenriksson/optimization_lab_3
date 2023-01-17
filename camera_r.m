@@ -60,15 +60,16 @@ if nargout>1 % We want the analytical Jacobian.
         J3 = Rk;
         % TODO: Prettify these indices.......
         for j = 1:pts_per_k
-            q_idx = 1 + (i-1)*k*pts_per_k + (j-1)*3:1 + (i-1)*k*pts_per_k + (j-1)*3+2;
-            qki = q(q_idx);
+            idx = 1 + (i-1)*k*pts_per_k + (j-1)*3;
+            J1_start_col = 1 + (i-1)*12;
+            J2_start_col = 12*k + idx;
+
+            qki = q(idx:idx+2);
             J1 = kron(qki',eye(3,3));
 
-            row_idx = q_idx;
-            col_idx_1 = 10 + (i-1)*pts_per_k*12 + (j-1)*12:10 + (i-1)*12*pts_per_k + (j-1)*12+2;
-            J(row_idx, 1 + (i-1)*12:1 + (i-1)*12 + 8) = J1;
-            J(row_idx, 10 + (i-1)*12:10 + (i-1)*12+2) = J2;
-            J(row_idx, q_idx + 12*k) = J3;
+            J(idx:idx+2, J1_start_col:J1_start_col+8) = J1;
+            J(idx:idx+2, 9 + (J1_start_col:J1_start_col+2)) = J2;
+            J(idx:idx+2, J2_start_col:J2_start_col + 2) = J3;
         end
     end
 end
