@@ -25,7 +25,7 @@ function [r,J,JJ]=camera_r(x,b)
 if ischar(x), selftest, return; end
 
 n = size(b,2);
-k = (length(x) - 3*n)/12;
+k = (length(x) - n)/12;
 pts_per_k = n/k;
 q = x(12*k + 1:end);
 r = zeros(3*n, 1);
@@ -35,12 +35,12 @@ for i = 1:k
  dk = KK(10:12);
  Rk = [Rk(1) Rk(4) Rk(7); Rk(2) Rk(5) Rk(8); Rk(3) Rk(6) Rk(9)];
  for j = 1:pts_per_k
-     q_idx = 1 + (i-1)*k*pts_per_k + (j-1)*3:1 + (i-1)*k*pts_per_k + (j-1)*3+2;
-     qki = q(q_idx);
+     q_idx = 1 + (j-1)*3;
+     qki = q(q_idx:q_idx+2);
      bki = b(:, j + (i-1)*pts_per_k);
      resk = Rk*qki + dk - bki;
-     r_idx = q_idx;
-     r(r_idx) = resk;
+     r_idx = 1 + (i-1)*3*pts_per_k + (j-1)*3;
+     r(r_idx:r_idx+2) = resk;
  end
 end
 
@@ -60,11 +60,12 @@ if nargout>1 % We want the analytical Jacobian.
         J3 = Rk;
         % TODO: Prettify these indices.......
         for j = 1:pts_per_k
-            idx = 1 + (i-1)*k*pts_per_k + (j-1)*3;
+            idx = 1 + (i-1)*3*pts_per_k + (j-1)*3;
             J1_start_col = 1 + (i-1)*12;
-            J2_start_col = 12*k + idx;
+            J2_start_col = 12*k + 1 + (j-1)*3;
 
-            qki = q(idx:idx+2);
+            q_idx = 1 + (j-1)*3;
+            qki = q(q_idx:q_idx+2);
             J1 = kron(qki',eye(3,3));
 
             J(idx:idx+2, J1_start_col:J1_start_col+8) = J1;
