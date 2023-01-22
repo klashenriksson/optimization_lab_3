@@ -1,7 +1,7 @@
 function [r,J,JJ]=circle_c(x,b)
-%CIRCLE_c Circle fitting constraint/jacobian function.
+%CIRCLE_C Circle fitting constraint/jacobian function.
 %
-%   V=CIRCLE_R(X,B) computes the 2N-by-1 residual vector V between the
+%   V=CIRCLE_C(X,B) computes the 2N-by-1 residual vector V between the
 %   circle points modelled by the N+3 vector X and the 2-by-N array B
 %   with point coordinates. The vector X contains
 %

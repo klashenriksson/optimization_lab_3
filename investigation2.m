@@ -1,6 +1,14 @@
+% A script for computing the co-registration problem
+%
+% Author: Joel Nilsson, joni0295@student.umu.se, Klas Henriksson
+%   klhe0017@studnt.umu.se.
+%       2023-01-20: First implementation. 
+
 clear
 close all
 clc
+
+% Setting up the problem
 [p,~,cams] = mitpts(1); 
 k = 3;
 Rk = reshape(eye(3,3),[],1);
@@ -74,5 +82,4 @@ for i = 1:k
         end
         hold on
     end
-
 end
