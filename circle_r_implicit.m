@@ -1,25 +1,27 @@
 function [r,J,JJ]=circle_r_implicit(x,b)
 %CIRCLE_R_IMPLICIT Circle fitting residual/jacobian function.
 %
-%   V=CIRCLE_R(X,B) computes the 2N-by-1 residual vector V between the
+%   V=CIRCLE_R_IMPLICIT(X,B) computes the 2N-by-1 residual vector V between the
 %   circle points modelled by the N+3 vector X and the 2-by-N array B
 %   with point coordinates. The vector X contains
 %
-%           [ C
-%       X =   R
-%             TH ],
+%           [ p_1
+%       X =   p_2
+%             ... 
+%             p_n],
 %
-%   where the circle center C is 2-by-1, the radius is the scalar
-%   R, and the N-by-1 vector TH contain the phase angles.
+%   where p_i is the flattened model coordinate of point i.
 %
 %   [V,J]=... also computes the analytical Jacobian with respect to X.
 %
 %   [V,J,JJ]=... also returns a numerical approximation JJ of J
-%   computed by JACAPPROX. Use CIRCLE_R('SELFTEST') to run a
+%   computed by JACAPPROX. Use CIRCLE_R_IMPLICIT('SELFTEST') to run a
 %   selftest of the analytical Jacobian.
 %
 
-% Niclas Borlin, niclas.borlin@cs.umu.se. First version 2017-11-09.
+% Author: Joel Nilsson, joni0295@student.umu.se, Klas Henriksson
+%   klhe0017@studnt.umu.se.
+%       2023-01-20: First implementation. 
 
 % Shortcut for selftest.
 if ischar(x), selftest, return; end
@@ -41,7 +43,6 @@ end
 
 
 if nargout>1 % We want the analytical Jacobian.
-    % Cheat. Return the numerical instead.
     k = size(b,2);
     n = size(x,1);
     Ik = eye(k,k);
